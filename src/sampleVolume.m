@@ -1,4 +1,4 @@
-function [pos_patches, neg_patches] = sampleVolume(V, grader, p_sz, n)
+function [patches] = sampleVolume(V, grader, p_sz, n)
 % n = 400;
 % grader = X1grader_1;
 % p_sz = 21;
@@ -10,7 +10,7 @@ function [pos_patches, neg_patches] = sampleVolume(V, grader, p_sz, n)
 pos_idx = randsample(length(grader), n, true);
 
 %% Extract patches around each positive sample
-pos_patches = zeros(p_sz * p_sz, n);
+pos_patches = zeros(p_sz,p_sz,1, n);
 s = (p_sz - 1) / 2;
 
 for i = 1:length(pos_idx),
@@ -21,7 +21,7 @@ for i = 1:length(pos_idx),
     
     if r- s > 0 && r+s <= size(V, 1) && c-s > 0 && c+s <= size(V, 2),
         patch = V(r-s:r+s, c-s:c+s, 1, grader(ii, 3));
-        pos_patches(:,i) = patch(:);
+        pos_patches(:,:,:,i) = patch;
     end
 end
 
@@ -45,7 +45,7 @@ for i = 1:n,
 end
 
 %% Extract patches around each negative sample
-neg_patches = zeros(p_sz * p_sz, n);
+neg_patches = zeros(p_sz,p_sz,1, n);
 
 for i = 1:size(neg_idx, 1),
     r = neg_idx(i, 1);
@@ -54,6 +54,9 @@ for i = 1:size(neg_idx, 1),
     
     if r- s > 0 && r+s <= size(V, 1) && c-s > 0 && c+s <= size(V, 2),
         patch = V(r-s:r+s, c-s:c+s, 1, k);
-        neg_patches(:,i) = patch(:);
+        neg_patches(:,:,:,i) = patch;
     end
 end
+
+patches(:,:,1,1:n) = pos_patches;
+patches(:,:,1,n+1:2*n) = neg_patches;
